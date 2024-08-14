@@ -47,6 +47,22 @@ namespace GameServer
             return requestInfo;
         }
 
+        public static void SendDataToSocketWithCode(Socket socket, int code, List<byte> data)
+        {
+            List<byte> codeBytes = new List<byte>();
+            codeBytes.Add((byte)code);
+
+            List<byte> lengthBytes = new List<byte>(BitConverter.GetBytes(data.Count));
+            lengthBytes.Reverse();
+
+            List<byte> result = new List<byte>();
+            result.AddRange(codeBytes);
+            result.AddRange(lengthBytes);
+            result.AddRange(data);
+
+            SendDataToSocket(socket, result);
+        }
+
         public static void SendDataToSocket(Socket socket, List<byte> data)
         {
             byte[] dataBytes = data.ToArray();

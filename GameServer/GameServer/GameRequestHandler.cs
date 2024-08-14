@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GameServer
 {
-    internal class TestHandler : IRequestHandler
+    internal class GameRequestHandler : IRequestHandler
     {
-
+        private Game game;
+        public GameRequestHandler(Game game)
+        {
+            this.game = game;
+        }
         public bool IsRequestRelevant(RequestInfo requestInfo)
         {
-            return true;
+            return requestInfo.requestCode == (int)RequestCodes.Move;
         }
 
         public RequestResult HandleRequest(RequestInfo requestInfo)
@@ -23,7 +28,7 @@ namespace GameServer
 
         public void HandleDisconnect()
         {
-            int x = 1;
+
         }
     }
 }

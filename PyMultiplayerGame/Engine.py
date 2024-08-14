@@ -5,6 +5,7 @@ from Mouse import Mouse
 from Keyboard import Keyboard
 from MenuScreen import MenuScreen
 from Drawable import DrawManager
+from Communicator import Communicator
 
 
 pygame.init()
@@ -24,6 +25,7 @@ class Engine:
         self.draw_manager = DrawManager(self.current_screen)
         self.timer_manager = TimerManager()
         self.clock = pygame.time.Clock()
+        self.communicator = Communicator()
 
         self.camera = Camera()
 

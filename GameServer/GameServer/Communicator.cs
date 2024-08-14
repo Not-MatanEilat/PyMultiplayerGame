@@ -8,16 +8,23 @@ using System.Threading.Tasks;
 
 namespace GameServer
 {
+    enum RequestCodes : int
+    {   
+        ConnectToGame = 1,
+        Move = 2
+    }
     internal class Communicator
     {
         public const int port = 6984;
         public const int maxRequestSize = 1024;
 
         private Dictionary<Socket, IRequestHandler> clients;
+        private Game game;
 
-        public Communicator()
+        public Communicator(Game game)
         {
             clients = new Dictionary<Socket, IRequestHandler>();
+            this.game = game;
         }
         public void HandleRequests()
         {
@@ -28,7 +35,7 @@ namespace GameServer
                 Console.WriteLine("Handling requests...");
                 Socket socket = listener.AcceptSocket();
 
-                TestHandler testHandler = new TestHandler();
+                ConnectToGameRequestHandler testHandler = new ConnectToGameRequestHandler(game);
                 clients[socket] = testHandler;  
 
                 Thread clientThread = new Thread(() => acceptNewClient(socket));
@@ -49,20 +56,26 @@ namespace GameServer
 
         private void acceptNewClient(Socket clientSocket)
         {
-
-            // main client loop
-            while (true)
+            try
             {
-                RequestInfo requestInfo = BytesHelper.GetRequestInfoFromSocket(clientSocket);
-                Console.WriteLine("Received request with code " + requestInfo.requestCode);
-                Console.WriteLine("Received request with buffer " + BytesHelper.BytesToString(requestInfo.buffer));
-                RequestResult requestResult = clients[clientSocket].handleRequest(requestInfo);
+                // main client loop
+                while (true)
+                {
+                    RequestInfo requestInfo = BytesHelper.GetRequestInfoFromSocket(clientSocket);
+                    Console.WriteLine("Received request with code " + requestInfo.requestCode);
+                    Console.WriteLine("Received request with buffer " + BytesHelper.BytesToString(requestInfo.buffer));
+                    RequestResult requestResult = clients[clientSocket].HandleRequest(requestInfo);
 
-                BytesHelper.SendDataToSocket(clientSocket, requestResult.response);
+                    BytesHelper.SendDataToSocketWithCode(clientSocket, requestResult.responseCode, requestResult.response);
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Client disconnected");
+                clients[clientSocket].HandleDisconnect();
+                clientSocket.Close();
 
-
-           
+            }
 
         }
     }

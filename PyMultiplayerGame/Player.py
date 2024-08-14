@@ -4,8 +4,10 @@ from Sprite import Sprite
 
 
 class Player(Sprite):
-    def __init__(self, camera, x, y, width, height):
+    def __init__(self, camera, communicator, x, y, width, height):
         super().__init__(camera, x, y, width, height)
+        self.communicator = communicator
+
         self.speed = 5
 
         self.x_velocity = 0

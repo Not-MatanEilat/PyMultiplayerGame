@@ -14,12 +14,13 @@ namespace GameServer
     }
     struct RequestResult
     {
+        public int responseCode;
         public List<byte> response;
     }
     internal interface IRequestHandler
     {
-        bool isRequestRelevant(RequestInfo requestInfo);
-        RequestResult handleRequest(RequestInfo requestInfo);
-        void handleDisconnect();
+        bool IsRequestRelevant(RequestInfo requestInfo);
+        RequestResult HandleRequest(RequestInfo requestInfo);
+        void HandleDisconnect();
     }
 }

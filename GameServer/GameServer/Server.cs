@@ -9,9 +9,11 @@ namespace GameServer
     internal class Server
     {
         private Communicator communicator;
+        private Game game;
         public Server()
         {
-            communicator = new Communicator();
+            Game game = new Game();
+            communicator = new Communicator(game);
         }
         public void Start()
         {

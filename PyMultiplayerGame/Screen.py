@@ -47,9 +47,13 @@ class Screen:
         self.engine.draw_manager.draw(self.engine.screen)
         pygame.display.flip()
 
+    def on_packet_received(self, response_code, data):
+        print("Packet received with code: " + str(response_code) + " and data: " + str(data))
+
     def start_screen(self, screen):
         screen_to_start = screen(self.engine)
         self.engine.screens.append(self)
+        self.engine.communicator.on_packet_received = screen_to_start.on_packet_received
         screen_to_start.run()
 
     def back_to_last_screen(self):
@@ -57,4 +61,5 @@ class Screen:
         self.engine.current_screen = screen_to_start
         self.engine.draw_manager.current_screen = screen_to_start
         self.engine.UI.current_screen = screen_to_start
+        self.engine.communicator.on_packet_received = screen_to_start.on_packet_received
         screen_to_start.run()
