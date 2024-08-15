@@ -9,14 +9,14 @@ namespace GameServer.Responses
 {
     internal class ConnectToGameResponse : IResponse
     {
-        private List<Rectangle> blocks;
+        private List<RectangleF> blocks;
 
-        public ConnectToGameResponse(int id, List<Rectangle> blocks) : base(id)
+        public ConnectToGameResponse(int id, List<RectangleF> blocks) : base(id)
         {
             this.blocks = blocks;
         }
 
-        public List<Rectangle> GetBlocks()
+        public List<RectangleF> GetBlocks()
         {
             return blocks;
         }

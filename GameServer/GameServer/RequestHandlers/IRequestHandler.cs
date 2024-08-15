@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameServer
+namespace GameServer.RequestHandlers
 {
     struct RequestInfo
     {
@@ -14,6 +14,7 @@ namespace GameServer
     }
     struct RequestResult
     {
+        public IRequestHandler newHandler;
         public int responseCode;
         public List<byte> response;
     }

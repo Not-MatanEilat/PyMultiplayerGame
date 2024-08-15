@@ -3,36 +3,52 @@ import struct
 import json
 from threading import Thread
 
+class ResponseCodes:
+    CONNECTED_TO_SERVER = 1
+    GAME_CONNECTED = 2
+    MOVE = 3
+
+class RequestCodes:
+    CONNECT_TO_GAME = 2
+    MOVE = 3
+
 class Communicator:
 
     IP = '127.0.0.1'
     PORT = 6984
 
-    CONNECT_TO_GAME_CODE = 1
-    MOVE_CODE = 2
-
-    def __init__(self):
+    def __init__(self, engine):
         self.sock = socket(AF_INET, SOCK_STREAM)
 
-        self.on_packet_received = None
+        self.engine = engine
 
     def connect_to_server(self):
-        self.sock.connect((self.IP, self.PORT))
-        print("Successfully connected to server")
+        # setup thread for connecting to server and then listening to packets
+        thread = Thread(target=self.connect_socket_to_server)
+        thread.start()
 
-        # setup thread for listening for packets
-        listen_thread = Thread(target=self.listen_for_packets_from_server)
-        listen_thread.start()
+    def connect_socket_to_server(self):
+        try:
+            self.sock.connect((self.IP, self.PORT))
+            print("Successfully connected to server")
 
+            self.listen_for_packets_from_server()
+        except ConnectionRefusedError as e:
+            # if on communicator function is set, pass it to the function, otherwise raise the exception as normal
+            if self.engine.current_screen.on_communicator_error is not None:
+                self.engine.current_screen.on_communicator_error(e)
+            else:
+                raise e
     def listen_for_packets_from_server(self):
         while True:
             try:
                 message = self.receive_message()
-                if self.on_packet_received is not None:
+                if self.engine.current_screen.on_packet_received is not None:
                     response_code, msg_length, message = self.parse_message(message)
+                    print("Received message with code: " + str(response_code) + " and message: " + message)
                     response_json = json.loads(message)
 
-                    self.on_packet_received(response_code, response_json)
+                    self.engine.current_screen.on_packet_received(response_code, response_json)
             except ConnectionResetError:
                 print("Connection to server lost")
                 break
@@ -67,7 +83,10 @@ class Communicator:
 
     # requests
     def connect_to_game(self):
-        self.send_dict_request(self.CONNECT_TO_GAME_CODE, {"name": "player1"})
+        self.send_dict_request(RequestCodes.CONNECT_TO_GAME, {"name": "player1"})
+
+    def update_player_position(self, x, y):
+        self.send_dict_request(RequestCodes.MOVE, {"position": {"x": x, "y": y}})
 
 
 

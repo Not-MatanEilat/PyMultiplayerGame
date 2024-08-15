@@ -5,21 +5,26 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using GameServer.GameRelated;
+using GameServer.Helpers;
+using GameServer.RequestHandlers;
+using GameServer.Responses;
 
 namespace GameServer
 {
     enum RequestCodes : int
     {   
-        ConnectToGame = 1,
-        Move = 2
+        ConnectToServer = 1,
+        ConnectToGame = 2,
+        Move = 3
     }
     internal class Communicator
     {
         public const int port = 6984;
         public const int maxRequestSize = 1024;
 
-        private Dictionary<Socket, IRequestHandler> clients;
         private Game game;
+        private Dictionary<Socket, IRequestHandler> clients;
 
         public Communicator(Game game)
         {
@@ -33,10 +38,7 @@ namespace GameServer
             while (true)
             {
                 Console.WriteLine("Handling requests...");
-                Socket socket = listener.AcceptSocket();
-
-                ConnectToGameRequestHandler testHandler = new ConnectToGameRequestHandler(game);
-                clients[socket] = testHandler;  
+                Socket socket = listener.AcceptSocket(); 
 
                 Thread clientThread = new Thread(() => acceptNewClient(socket));
                 clientThread.Start();
@@ -56,6 +58,8 @@ namespace GameServer
 
         private void acceptNewClient(Socket clientSocket)
         {
+            CompleteConnection(clientSocket);
+
             try
             {
                 // main client loop
@@ -65,6 +69,10 @@ namespace GameServer
                     Console.WriteLine("Received request with code " + requestInfo.requestCode);
                     Console.WriteLine("Received request with buffer " + BytesHelper.BytesToString(requestInfo.buffer));
                     RequestResult requestResult = clients[clientSocket].HandleRequest(requestInfo);
+                    if (requestResult.newHandler != null)
+                    {
+                        clients[clientSocket] = requestResult.newHandler;
+                    }
 
                     BytesHelper.SendDataToSocketWithCode(clientSocket, requestResult.responseCode, requestResult.response);
                 }
@@ -76,6 +84,14 @@ namespace GameServer
                 clientSocket.Close();
 
             }
+
+        }
+
+        public void CompleteConnection(Socket clientSocket)
+        {
+            ConnectedToServerResponse response = new ConnectedToServerResponse(0);
+            BytesHelper.SendDataToSocketWithCode(clientSocket, (int)RequestCodes.ConnectToServer, JsonResponseSerializer.serializeResponse(response));
+            clients[clientSocket] = new ConnectToGameRequestHandler(game);
 
         }
     }

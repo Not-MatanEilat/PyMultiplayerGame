@@ -6,14 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameServer
+namespace GameServer.Helpers
 {
     internal class JsonRequestDeserializer
     {
-        public static ConnectToGameRequest DesrializeRequest(List<Byte> buffer)
+        public static T DeserializeRequest<T>(List<byte> buffer) where T : IRequest
         {
-            String stringBuffer = BytesHelper.BytesToString(buffer);
-            ConnectToGameRequest request = JObject.Parse(stringBuffer).ToObject<ConnectToGameRequest>();
+            string stringBuffer = BytesHelper.BytesToString(buffer);
+            T request = JObject.Parse(stringBuffer).ToObject<T>();
             return request;
         }
     }

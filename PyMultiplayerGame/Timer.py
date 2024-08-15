@@ -56,11 +56,15 @@ class Timer:
     def is_paused(self):
         return self.paused
 
+    def delete(self):
+        TimerManager.get_instance().timers.remove(self)
+
 
 class CountdownTimer(Timer):
-    def __init__(self, time):
+    def __init__(self, time, repeat=False):
         super().__init__()
         self.time = time
+        self.repeat = repeat
 
         self.on_finish = None
         TimerManager.get_instance().timers.append(self)
@@ -68,7 +72,12 @@ class CountdownTimer(Timer):
     def update(self):
         if self.is_started():
             if self.get_ticks() / 1000 >= self.time:
-                self.stop()
+
+                if self.repeat:
+                    self.start()
+                else:
+                    self.stop()
+
                 if self.on_finish is not None:
                     self.on_finish()
 

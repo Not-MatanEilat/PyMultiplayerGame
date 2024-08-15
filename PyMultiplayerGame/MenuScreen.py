@@ -1,6 +1,7 @@
 import pygame
 
 import Colors
+from ConnectingToGameScreen import ConnectingToGameScreen
 from UI import EditText, Button
 from Screen import Screen
 from Sprite import Sprite
@@ -14,8 +15,8 @@ class MenuScreen(Screen):
 
     def init_UI(self):
         button = Button(pygame.Rect(150, 150, 100, 50), Colors.RED, "Play", Colors.BLACK, self.engine.mouse)
-        button.on_click_call_backs.append(lambda: self.start_screen(GameScreen))
-        self.engine.UI.add_view(button)
+        button.on_click_call_backs.append(lambda: self.start_screen(ConnectingToGameScreen(self.engine)))
+        self.add_view(button)
 
 
     def updates(self, events):

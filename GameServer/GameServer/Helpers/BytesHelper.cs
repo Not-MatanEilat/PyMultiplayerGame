@@ -4,8 +4,9 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using GameServer.RequestHandlers;
 
-namespace GameServer
+namespace GameServer.Helpers
 {
     internal class BytesHelper
     {
@@ -65,11 +66,12 @@ namespace GameServer
 
         public static void SendDataToSocket(Socket socket, List<byte> data)
         {
+            Console.WriteLine("Sending data: " + BytesToString(data));
             byte[] dataBytes = data.ToArray();
             socket.Send(dataBytes);
         }
 
-        public static List<Byte> StringToBytes(string str)
+        public static List<byte> StringToBytes(string str)
         {
             return new List<byte>(Encoding.ASCII.GetBytes(str));
         }

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GameServer.Helpers;
 
-namespace GameServer
+namespace GameServer.RequestHandlers
 {
     internal class TestHandler : IRequestHandler
     {
