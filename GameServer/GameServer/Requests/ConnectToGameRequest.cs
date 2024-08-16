@@ -9,8 +9,9 @@ namespace GameServer.Requests
     internal class ConnectToGameRequest : IRequest
     {
         private string name;
+        
 
-        public ConnectToGameRequest(int id, string name) : base(id)
+        public ConnectToGameRequest(int id, string name) : base()
         {
             this.name = name;
         }

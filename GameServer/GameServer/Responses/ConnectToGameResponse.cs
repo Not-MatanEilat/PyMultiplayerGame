@@ -11,7 +11,7 @@ namespace GameServer.Responses
     {
         private List<RectangleF> blocks;
 
-        public ConnectToGameResponse(int id, List<RectangleF> blocks) : base(id)
+        public ConnectToGameResponse(List<RectangleF> blocks) : base()
         {
             this.blocks = blocks;
         }

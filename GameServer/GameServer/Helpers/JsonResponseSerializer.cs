@@ -14,8 +14,7 @@ namespace GameServer.Helpers
         public static List<byte> serializeResponse(ConnectToGameResponse response)
         {
             JObject json = new JObject();
-            json["id"] = response.GetId();
-            json["ok"] = true;
+            json["ok"] = response.IsOk();
 
             JArray blocksArray = new JArray();
             foreach (RectangleF block in response.GetBlocks())
@@ -38,9 +37,9 @@ namespace GameServer.Helpers
         public static List<byte> serializeResponse(MoveResponse response)
         {
             JObject json = new JObject();
-            json["id"] = response.GetId();
-            json["ok"] = true;
-            json["position"] = JArray.FromObject(new List<float> { response.GetPosition().X, response.GetPosition().Y });
+            json["request_id"] = response.GetRequestId();
+            json["ok"] = response.IsOk();
+            json["position"] = JObject.FromObject(new { x = response.GetPosition().X, y = response.GetPosition().Y });
 
             string jsonString = json.ToString();
             Console.WriteLine(jsonString);
@@ -51,8 +50,7 @@ namespace GameServer.Helpers
         public static List<byte> serializeResponse(ConnectedToServerResponse response)
         {
             JObject json = new JObject();
-            json["id"] = response.GetId();
-            json["ok"] = true;
+            json["ok"] = response.IsOk();
 
             string jsonString = json.ToString();
             Console.WriteLine(jsonString);
@@ -63,8 +61,7 @@ namespace GameServer.Helpers
         public static List<byte> serializeResponse(ErrorResponse response)
         {
             JObject json = new JObject();
-            json["id"] = response.GetId();
-            json["ok"] = false;
+            json["ok"] = response.IsOk();
             json["message"] = response.GetMessage();
 
             string jsonString = json.ToString();

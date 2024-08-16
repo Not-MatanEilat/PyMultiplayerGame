@@ -10,9 +10,10 @@ namespace GameServer.Responses
     {
         private string message;
 
-        public ErrorResponse(int id, string message) : base(id)
+        public ErrorResponse(string message) : base(false)
         {
             this.message = message;
+            
         }
 
         public string GetMessage()

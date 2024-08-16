@@ -6,7 +6,7 @@ from UI import EditText, Button, Text
 from Screen import Screen
 from Sprite import Sprite
 from Block import Block
-from Communicator import ResponseCodes
+from Communicator import RequestCodes
 from typing import Dict, Callable
 from Game import Game
 
@@ -26,8 +26,8 @@ class GameScreen(Screen):
         self.timer.start()
         self.timer.on_finish = lambda: self.back_to_last_screen()
 
-        self.response_functions: Dict[ResponseCodes, Callable[[Game], None]] = {
-            ResponseCodes.MOVE: self.game.on_movement_response
+        self.response_functions: Dict[RequestCodes, Callable[[Game], None]] = {
+            RequestCodes.MOVE: self.game.on_movement_response
         }
 
     def init_UI(self):

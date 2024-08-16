@@ -15,8 +15,9 @@ namespace GameServer
     enum RequestCodes : int
     {   
         ConnectToServer = 1,
-        ConnectToGame = 2,
-        Move = 3
+        Error = 2,
+        ConnectToGame = 3,
+        Move = 4
     }
     internal class Communicator
     {
@@ -89,7 +90,7 @@ namespace GameServer
 
         public void CompleteConnection(Socket clientSocket)
         {
-            ConnectedToServerResponse response = new ConnectedToServerResponse(0);
+            ConnectedToServerResponse response = new ConnectedToServerResponse();
             BytesHelper.SendDataToSocketWithCode(clientSocket, (int)RequestCodes.ConnectToServer, JsonResponseSerializer.serializeResponse(response));
             clients[clientSocket] = new ConnectToGameRequestHandler(handlerFactory.GetGame());
 

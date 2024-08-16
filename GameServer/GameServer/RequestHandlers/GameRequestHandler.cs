@@ -46,7 +46,7 @@ namespace GameServer.RequestHandlers
             }
             catch (GameException e)
             {
-                ErrorResponse errorResponse = new ErrorResponse(requestInfo.requestCode, e.Message);
+                ErrorResponse errorResponse = new ErrorResponse(e.Message);
                 Console.WriteLine("Error: " + e.Message);
                 result.responseCode = requestInfo.requestCode;
                 result.response = JsonResponseSerializer.serializeResponse(errorResponse);
@@ -59,19 +59,26 @@ namespace GameServer.RequestHandlers
         private RequestResult Move(RequestInfo requestInfo)
         {
             MoveRequest request = JsonRequestDeserializer.DeserializeRequest<MoveRequest>(requestInfo.buffer);
-            if (Vector2.Distance(player.GetPosition(), request.GetPosition()) > maxDistanceDifferenceFromClientToServer)
+            MoveResponse moveResponse;
+
+            // if the user is trying to move too far, we don't allow it
+            if (Vector2.Distance(player.GetPosition(), request.GetPosition()) <= maxDistanceDifferenceFromClientToServer)
             {
-                throw new GameException("Can't let you move that far, buddy");
+                player.SetPosition(request.GetPosition());
+                moveResponse = new MoveResponse(request.GetRequestId(), request.GetPosition());
+
             }
-
-            Console.WriteLine("Player moved to: " + request.GetPosition().X + " " + request.GetPosition().Y);
-
-            player.SetPosition(request.GetPosition());
+            else
+            {
+                moveResponse = new MoveResponse(request.GetRequestId(), player.GetPosition());
+                moveResponse.SetOk(false);
+            }
 
             RequestResult result = new RequestResult();
             result.responseCode = requestInfo.requestCode;
-            result.response = JsonResponseSerializer.serializeResponse(new MoveResponse(requestInfo.requestCode, player.GetPosition()));
+            result.response = JsonResponseSerializer.serializeResponse(moveResponse);
             result.newHandler = this;
+
 
             return result;
         }

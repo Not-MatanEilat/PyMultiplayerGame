@@ -8,7 +8,7 @@ namespace GameServer.Responses
 {
     internal class ConnectedToServerResponse : IResponse
     {
-        public ConnectedToServerResponse(int id) : base(id) 
+        public ConnectedToServerResponse() : base() 
         {
 
         }

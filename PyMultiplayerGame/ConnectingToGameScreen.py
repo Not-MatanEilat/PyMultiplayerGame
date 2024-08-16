@@ -7,7 +7,8 @@ import Colors
 from Timer import Timer, CountdownTimer
 from UI import Text
 from typing import Dict, Callable
-from Communicator import ResponseCodes
+from Communicator import RequestCodes
+from Responses import ConnectToGameResponse, get_response
 
 class ConnectingToGameScreen(Screen):
 
@@ -20,9 +21,9 @@ class ConnectingToGameScreen(Screen):
 
         self.connecting_attempts = 0
 
-        self.response_functions: Dict[ResponseCodes, Callable[[dict], None]] = {
-            ResponseCodes.CONNECTED_TO_SERVER: self.on_connected_to_server,
-            ResponseCodes.GAME_CONNECTED: self.on_connected_to_game
+        self.response_functions: Dict[RequestCodes, Callable[[dict], None]] = {
+            RequestCodes.CONNECTED_TO_SERVER: self.on_connected_to_server,
+            RequestCodes.CONNECT_TO_GAME: self.on_connected_to_game
         }
 
     def on_create(self):
@@ -60,9 +61,11 @@ class ConnectingToGameScreen(Screen):
 
     def on_connected_to_game(self, data):
 
+        response: ConnectToGameResponse = get_response(data, ConnectToGameResponse)
+
         blocks = []
-        for block in data["blocks"]:
-            blocks.append(Block(self.engine.camera, block["x"], block["y"], block["width"], block["height"]))
+        for block in response.blocks:
+            blocks.append(Block(self.engine.camera, block.x, block.y, block.width, block.height))
 
         game_screen = GameScreen(self.engine, blocks)
         self.start_screen(game_screen)

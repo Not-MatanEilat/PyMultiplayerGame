@@ -3,14 +3,12 @@ import struct
 import json
 from threading import Thread
 
-class ResponseCodes:
-    CONNECTED_TO_SERVER = 1
-    GAME_CONNECTED = 2
-    MOVE = 3
-
 class RequestCodes:
-    CONNECT_TO_GAME = 2
-    MOVE = 3
+    CONNECTED_TO_SERVER = 1
+    Error = 2
+    CONNECT_TO_GAME = 3
+    MOVE = 4
+
 
 class Communicator:
 
@@ -85,8 +83,8 @@ class Communicator:
     def connect_to_game(self):
         self.send_dict_request(RequestCodes.CONNECT_TO_GAME, {"name": "player1"})
 
-    def update_player_position(self, x, y):
-        self.send_dict_request(RequestCodes.MOVE, {"position": {"x": x, "y": y}})
+    def update_player_position(self, request_id, x, y):
+        self.send_dict_request(RequestCodes.MOVE, {"requestId": request_id, "position": {"x": x, "y": y}})
 
 
 

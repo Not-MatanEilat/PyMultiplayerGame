@@ -8,16 +8,21 @@ namespace GameServer.Responses
 {
     abstract class IResponse
     {
-        private int id;
+        private bool ok;
 
-        public IResponse(int id)
+        public IResponse( bool ok = true)
         {
-            this.id = id;
+            this.ok = ok;
         }
 
-        public int GetId()
+        public bool IsOk()
         {
-            return id;
+            return ok;
+        }
+
+        public void SetOk(bool ok)
+        {
+            this.ok = ok;
         }
     }
 }

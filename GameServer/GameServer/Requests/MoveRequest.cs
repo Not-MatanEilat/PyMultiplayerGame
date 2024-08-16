@@ -10,15 +10,24 @@ namespace GameServer.Requests
     internal class MoveRequest : IRequest
     {
         private Vector2 position;
+        private int requestId;
 
-        public MoveRequest(int id, Vector2 position) : base(id)
+        public MoveRequest(int requestId, Vector2 position) : base()
         {
             this.position = position;
+            this.requestId = requestId;
         }
 
         public Vector2 GetPosition()
         {
             return position;
         }
+
+        public int GetRequestId()
+        {
+            return requestId;
+        }
+
+
     }
 }

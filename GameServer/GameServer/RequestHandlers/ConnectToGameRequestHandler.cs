@@ -33,7 +33,7 @@ namespace GameServer.RequestHandlers
             }
             catch (GameException e)
             {
-                ErrorResponse errorResponse = new ErrorResponse(requestInfo.requestCode, e.Message);
+                ErrorResponse errorResponse = new ErrorResponse(e.Message);
                 Console.WriteLine("Error: " + e.Message);
                 result.responseCode = requestInfo.requestCode;
                 result.response = JsonResponseSerializer.serializeResponse(errorResponse);
@@ -45,7 +45,6 @@ namespace GameServer.RequestHandlers
         private RequestResult Connect(RequestInfo requestInfo)
         {
             ConnectToGameRequest request = JsonRequestDeserializer.DeserializeRequest<ConnectToGameRequest>(requestInfo.buffer);
-            Console.WriteLine("Id request: " + request.GetId());
             Console.WriteLine("Name request: " + request.GetName());
 
 
@@ -54,7 +53,7 @@ namespace GameServer.RequestHandlers
 
             RequestResult result = new RequestResult();
 
-            ConnectToGameResponse response = new ConnectToGameResponse(1, game.GetBlocks());
+            ConnectToGameResponse response = new ConnectToGameResponse(game.GetBlocks());
             result.response = JsonResponseSerializer.serializeResponse(response);
 
             result.responseCode = requestInfo.requestCode;

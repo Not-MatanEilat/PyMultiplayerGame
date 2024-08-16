@@ -7,17 +7,11 @@ using System.Threading.Tasks;
 namespace GameServer.Requests
 {
     abstract class IRequest
-    {
-        private int id;
-    
-        public IRequest(int id)
+    {    
+        public IRequest()
         {
-            this.id = id;
+
         }
 
-        public int GetId()
-        {
-            return id;
-        }
     }
 }
