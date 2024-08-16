@@ -23,13 +23,13 @@ namespace GameServer
         public const int port = 6984;
         public const int maxRequestSize = 1024;
 
-        private Game game;
+        private HandlerFactory handlerFactory;
         private Dictionary<Socket, IRequestHandler> clients;
 
-        public Communicator(Game game)
+        public Communicator(HandlerFactory handlerFactory)
         {
             clients = new Dictionary<Socket, IRequestHandler>();
-            this.game = game;
+            this.handlerFactory = handlerFactory;
         }
         public void HandleRequests()
         {
@@ -43,7 +43,7 @@ namespace GameServer
                 Thread clientThread = new Thread(() => acceptNewClient(socket));
                 clientThread.Start();
             }
-        }
+        }   
 
         private TcpListener SetupListener()
         {
@@ -91,8 +91,27 @@ namespace GameServer
         {
             ConnectedToServerResponse response = new ConnectedToServerResponse(0);
             BytesHelper.SendDataToSocketWithCode(clientSocket, (int)RequestCodes.ConnectToServer, JsonResponseSerializer.serializeResponse(response));
-            clients[clientSocket] = new ConnectToGameRequestHandler(game);
+            clients[clientSocket] = new ConnectToGameRequestHandler(handlerFactory.GetGame());
 
+        }
+
+        public Dictionary<Socket, IRequestHandler> GetClients()
+        {
+            return clients;
+        }
+
+        public List<Socket> GetClients<T>() where T : IRequestHandler
+        {
+            List<Socket> result = new List<Socket>();
+            foreach (KeyValuePair<Socket, IRequestHandler> client in clients)
+            {
+                if (client.Value is T)
+                {
+                    result.Add(client.Key);
+                }
+            }
+
+            return result;
         }
     }
 }

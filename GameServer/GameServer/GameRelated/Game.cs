@@ -18,7 +18,9 @@ namespace GameServer.GameRelated
         private const int targetUpdatesPerSecond = 60;
         private const int frameTime = 1000 / targetUpdatesPerSecond;
 
-        public Game()
+        private HandlerFactory handlerFactory;
+
+        public Game(HandlerFactory handlerFactory)
         {
             blocks = new List<RectangleF>();
             players = new List<Player>();
@@ -30,6 +32,8 @@ namespace GameServer.GameRelated
             blocks.Add(new RectangleF(200, 400, 50, 50));
             blocks.Add(new RectangleF(250, 400, 50, 50));
             blocks.Add(new RectangleF(300, 400, 50, 50));
+
+            this.handlerFactory = handlerFactory;
         }
 
         public void mainLoop()

@@ -9,18 +9,20 @@ namespace GameServer
 {
     internal class Server
     {
-        private Communicator communicator;
-        private Game game;
+        HandlerFactory handlerFactory;
         public Server()
         {
-            Game game = new Game();
-            communicator = new Communicator(game);
+            handlerFactory = new HandlerFactory();
+
         }
         public void Start()
         {
-            Thread communicatorThread = new Thread(communicator.HandleRequests);
+            Thread communicatorThread = new Thread(handlerFactory.GetCommunicator().HandleRequests);
             communicatorThread.Start();
-            
+
+            Thread gameThread = new Thread(handlerFactory.GetGame().mainLoop);
+            gameThread.Start();
+
             String input = "";
             while (true)
             {
