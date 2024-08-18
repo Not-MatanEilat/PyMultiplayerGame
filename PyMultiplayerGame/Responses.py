@@ -13,10 +13,6 @@ class Block:
     height: int
 
 @dataclass
-class ConnectToGameResponse(Response):
-    blocks: list[Block]
-
-@dataclass
 class Position:
     x: int
     y: int
@@ -25,6 +21,22 @@ class Position:
 class MoveResponse(Response):
     request_id: int
     position: Position
+@dataclass
+class Player:
+    name: str
+    position: Position
+
+
+@dataclass
+class ConnectToGameResponse(Response):
+    blocks: list[Block]
+    players: list[Player]
+
+
+
+@dataclass
+class UpdatePlayersResponse(Response):
+    players: list[Player]
 
 def get_response(data: dict, response_type):
     return response_type.Schema().load(data)

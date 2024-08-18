@@ -6,44 +6,40 @@ from UI import EditText, Button, Text
 from Screen import Screen
 from Sprite import Sprite
 from Block import Block
-from Communicator import RequestCodes
+from Communicator import PacketCodes
 from typing import Dict, Callable
 from Game import Game
 
 
 class GameScreen(Screen):
-    def __init__(self, engine, blocks):
+    def __init__(self, engine, blocks, players, local_player_name):
         super().__init__(engine)
 
-        self.game = Game(engine, blocks)
+        self.game = Game(engine, blocks, players, local_player_name)
 
         self.init_UI()
 
-        self.text_view = Text(pygame.Rect(0, 50, 100, 50), "Time: ", 36, Colors.BLACK, self.engine.mouse)
+        self.text_view = Text(pygame.Rect(0, 50, 100, 50), "Time: ", 36, Colors.BLACK)
         self.add_view(self.text_view)
 
-        self.timer = CountdownTimer(10)
-        self.timer.start()
-        self.timer.on_finish = lambda: self.back_to_last_screen()
-
-        self.response_functions: Dict[RequestCodes, Callable[[Game], None]] = {
-            RequestCodes.MOVE: self.game.on_movement_response
+        self.response_and_events_functions: Dict[PacketCodes, Callable[[Game], None]] = {
+            PacketCodes.MOVE: self.game.on_movement_response,
+            PacketCodes.UPDATE_PLAYERS: self.game.on_update_players_response
         }
 
     def init_UI(self):
-        button = Button(pygame.Rect(0, 0, 100, 50), Colors.RED, "Back", Colors.BLACK, self.engine.mouse)
+        button = Button(pygame.Rect(0, 0, 100, 50), Colors.RED, "Back", Colors.BLACK)
         button.on_click_call_backs.append(lambda: self.back_to_last_screen())
         self.add_view(button)
 
     def on_packet_received(self, response_code, data):
         super()
-        self.response_functions[response_code](data)
+        self.response_and_events_functions[response_code](data)
 
 
     def updates(self, events):
         super().updates(events)
         self.game.update()
-        self.text_view.text = "Time: " + str(int(self.timer.get_time_is_left()))
 
     def draw(self):
         super().draw()

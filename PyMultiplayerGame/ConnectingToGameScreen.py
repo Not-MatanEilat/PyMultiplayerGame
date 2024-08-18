@@ -5,10 +5,11 @@ from GameScreen import GameScreen
 from Screen import Screen
 import Colors
 from Timer import Timer, CountdownTimer
-from UI import Text
+from UI import Text, EditText, Button
 from typing import Dict, Callable
-from Communicator import RequestCodes
+from Communicator import PacketCodes
 from Responses import ConnectToGameResponse, get_response
+from Player import Player
 
 class ConnectingToGameScreen(Screen):
 
@@ -18,25 +19,36 @@ class ConnectingToGameScreen(Screen):
         super().__init__(engine)
 
         self.top_text = None
+        self.name_title_text = None
+        self.name_edit_text = None
+        self.connect_button = None
 
         self.connecting_attempts = 0
 
-        self.response_functions: Dict[RequestCodes, Callable[[dict], None]] = {
-            RequestCodes.CONNECTED_TO_SERVER: self.on_connected_to_server,
-            RequestCodes.CONNECT_TO_GAME: self.on_connected_to_game
+        self.response_functions: Dict[PacketCodes, Callable[[dict], None]] = {
+            PacketCodes.CONNECTED_TO_SERVER: self.on_connected_to_server,
+            PacketCodes.CONNECT_TO_GAME: self.on_connected_to_game
         }
 
     def on_create(self):
-        self.connect_to_server()
 
         self.init_UI()
 
     def connect_to_server(self):
+        self.top_text.text = "Connecting to server..."
         self.engine.communicator.connect_to_server()
 
     def init_UI(self):
-        self.top_text = Text(pygame.Rect(255, 0, 100, 50), "Connecting to the game...", 36, Colors.BLACK, self.engine.mouse)
+        self.top_text = Text(pygame.Rect(255, 0, 100, 50), "", 36, Colors.BLACK)
+        self.name_title_text = Text(pygame.Rect(100, 50, 100, 50), "Name ", 40, Colors.BLACK)
+        self.name_edit_text = EditText(pygame.Rect(200, 50, 250, 50), "", 36, Colors.BLACK)
+        self.connect_button = Button(pygame.Rect(200, 100, 100, 50), Colors.RED, "Connect", Colors.BLACK)
+        self.connect_button.on_click_call_backs.append(self.connect_to_server)
+
+        self.add_view(self.name_edit_text)
         self.add_view(self.top_text)
+        self.add_view(self.name_title_text)
+        self.add_view(self.connect_button)
 
     def on_packet_received(self, response_code, data):
         super().on_packet_received(response_code, data)
@@ -57,15 +69,19 @@ class ConnectingToGameScreen(Screen):
 
     def on_connected_to_server(self, data):
         print("Connecting to game")
-        self.engine.communicator.connect_to_game()
+        self.engine.communicator.connect_to_game(self.name_edit_text.current_text)
 
     def on_connected_to_game(self, data):
-
+        print(data)
         response: ConnectToGameResponse = get_response(data, ConnectToGameResponse)
 
         blocks = []
         for block in response.blocks:
             blocks.append(Block(self.engine.camera, block.x, block.y, block.width, block.height))
 
-        game_screen = GameScreen(self.engine, blocks)
+        players = {}
+        for player in response.players:
+            players[player.name] = Player(self.engine.camera, player.position.x, player.position.y, player.name)
+
+        game_screen = GameScreen(self.engine, blocks, players, self.name_edit_text.current_text)
         self.start_screen(game_screen)

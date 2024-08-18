@@ -3,11 +3,12 @@ import struct
 import json
 from threading import Thread
 
-class RequestCodes:
+class PacketCodes:
     CONNECTED_TO_SERVER = 1
     Error = 2
     CONNECT_TO_GAME = 3
     MOVE = 4
+    UPDATE_PLAYERS = 5
 
 
 class Communicator:
@@ -37,16 +38,18 @@ class Communicator:
                 self.engine.current_screen.on_communicator_error(e)
             else:
                 raise e
+
     def listen_for_packets_from_server(self):
-        while True:
+        while self.engine.running:
             try:
                 message = self.receive_message()
                 if self.engine.current_screen.on_packet_received is not None:
-                    response_code, msg_length, message = self.parse_message(message)
-                    print("Received message with code: " + str(response_code) + " and message: " + message)
+                    code, msg_length, message = self.parse_message(message)
                     response_json = json.loads(message)
 
-                    self.engine.current_screen.on_packet_received(response_code, response_json)
+                    self.engine.current_screen.on_packet_received(code, response_json)
+            except Exception as e:
+                print("Error receiving message: " + str(e))
             except ConnectionResetError:
                 print("Connection to server lost")
                 break
@@ -77,14 +80,14 @@ class Communicator:
         self.send_request_bytes(built_request)
 
     def receive_message(self):
-        return self.sock.recv(1024)
+        return self.sock.recv(2048)
 
     # requests
-    def connect_to_game(self):
-        self.send_dict_request(RequestCodes.CONNECT_TO_GAME, {"name": "player1"})
+    def connect_to_game(self, player_name):
+        self.send_dict_request(PacketCodes.CONNECT_TO_GAME, {"name": player_name})
 
     def update_player_position(self, request_id, x, y):
-        self.send_dict_request(RequestCodes.MOVE, {"requestId": request_id, "position": {"x": x, "y": y}})
+        self.send_dict_request(PacketCodes.MOVE, {"requestId": request_id, "position": {"x": x, "y": y}})
 
 
 

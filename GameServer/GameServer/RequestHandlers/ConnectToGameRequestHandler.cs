@@ -20,7 +20,7 @@ namespace GameServer.RequestHandlers
         }
         public bool IsRequestRelevant(RequestInfo requestInfo)
         {
-            return requestInfo.requestCode == (int)RequestCodes.ConnectToGame;
+            return requestInfo.requestCode == (int)PacketsCodes.ConnectToGame;
         }
 
         public RequestResult HandleRequest(RequestInfo requestInfo)
@@ -53,7 +53,7 @@ namespace GameServer.RequestHandlers
 
             RequestResult result = new RequestResult();
 
-            ConnectToGameResponse response = new ConnectToGameResponse(game.GetBlocks());
+            ConnectToGameResponse response = new ConnectToGameResponse(game.GetBlocks(), game.GetPlayers());
             result.response = JsonResponseSerializer.serializeResponse(response);
 
             result.responseCode = requestInfo.requestCode;

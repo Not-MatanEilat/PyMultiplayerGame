@@ -25,7 +25,7 @@ namespace GameServer.RequestHandlers
         }
         public bool IsRequestRelevant(RequestInfo requestInfo)
         {
-            return requestInfo.requestCode == (int)RequestCodes.Move;
+            return requestInfo.requestCode == (int)PacketsCodes.Move;
         }
 
         public RequestResult HandleRequest(RequestInfo requestInfo)
@@ -35,7 +35,7 @@ namespace GameServer.RequestHandlers
             {
                 switch (requestInfo.requestCode)
                 {
-                    case (int)RequestCodes.Move:
+                    case (int)PacketsCodes.Move:
                         result = Move(requestInfo);
                         break;
                     default:
@@ -85,6 +85,7 @@ namespace GameServer.RequestHandlers
 
         public void HandleDisconnect()
         {
+            Console.WriteLine("Player disconnected");
             game.RemovePlayer(player);
         }
     }

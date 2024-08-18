@@ -12,12 +12,13 @@ using GameServer.Responses;
 
 namespace GameServer
 {
-    enum RequestCodes : int
+    enum PacketsCodes : int
     {   
         ConnectToServer = 1,
         Error = 2,
         ConnectToGame = 3,
-        Move = 4
+        Move = 4,
+        UpdatePlayers = 5,
     }
     internal class Communicator
     {
@@ -67,8 +68,6 @@ namespace GameServer
                 while (true)
                 {
                     RequestInfo requestInfo = BytesHelper.GetRequestInfoFromSocket(clientSocket);
-                    Console.WriteLine("Received request with code " + requestInfo.requestCode);
-                    Console.WriteLine("Received request with buffer " + BytesHelper.BytesToString(requestInfo.buffer));
                     RequestResult requestResult = clients[clientSocket].HandleRequest(requestInfo);
                     if (requestResult.newHandler != null)
                     {
@@ -83,15 +82,24 @@ namespace GameServer
                 Console.WriteLine("Client disconnected");
                 clients[clientSocket].HandleDisconnect();
                 clientSocket.Close();
+                clients.Remove(clientSocket);
 
             }
 
         }
 
+        public void SendResultToClients(List<Socket> clients, RequestResult result)
+        {
+            foreach (Socket client in clients)
+            {
+                BytesHelper.SendDataToSocketWithCode(client, result.responseCode, result.response);
+            }
+        }
+
         public void CompleteConnection(Socket clientSocket)
         {
             ConnectedToServerResponse response = new ConnectedToServerResponse();
-            BytesHelper.SendDataToSocketWithCode(clientSocket, (int)RequestCodes.ConnectToServer, JsonResponseSerializer.serializeResponse(response));
+            BytesHelper.SendDataToSocketWithCode(clientSocket, (int)PacketsCodes.ConnectToServer, JsonResponseSerializer.serializeResponse(response));
             clients[clientSocket] = new ConnectToGameRequestHandler(handlerFactory.GetGame());
 
         }

@@ -1,11 +1,59 @@
 import pygame
 
 from Sprite import Sprite
+import Colors
+from UI import Text
 
 
 class Player(Sprite):
-    def __init__(self, camera, x, y, width, height):
-        super().__init__(camera, x, y, width, height)
+    WIDTH = 50
+    HEIGHT = 50
+
+    def __init__(self, camera, x, y, name):
+        super().__init__(camera, x, y, self.WIDTH, self.HEIGHT)
+
+        self.name = name
+        self.name_text = Text(pygame.Rect(0, 0, 100, 50), self.name, 36, Colors.BLACK)
+
+    def update(self, keyboard, blocks):
+        self.update_name_text_position()
+
+    def draw(self, screen):
+        super().draw(screen)
+        self.name_text.draw(screen)
+
+    def update_name_text_position(self):
+        self.name_text.rect.x = self.rect.x + self.rect.width / 2 - self.name_text.rect.width / 2
+        self.name_text.rect.y = self.rect.y - self.name_text.rect.height
+
+
+class CollisionsDirections:
+    def __init__(self):
+        self.top = False
+        self.bottom = False
+        self.left = False
+        self.right = False
+
+        self.right_block = None
+        self.left_block = None
+        self.top_block = None
+        self.bottom_block = None
+
+    def reset(self):
+        self.top = False
+        self.bottom = False
+        self.left = False
+        self.right = False
+
+        self.right_block = None
+        self.left_block = None
+        self.top_block = None
+        self.bottom_block = None
+
+
+class PlayablePlayer(Player):
+    def __init__(self, camera, x, y, name):
+        super().__init__(camera, x, y, name)
 
         self.speed = 5
 
@@ -21,6 +69,8 @@ class Player(Sprite):
         self.lock_all_controls = False
 
     def update(self, keyboard, blocks):
+        super().update(keyboard, blocks)
+
         self.reset_collisions()
 
         self.move_x()
@@ -112,29 +162,3 @@ class Player(Sprite):
             if self.rect.colliderect(block.rect):
                 collides.append(block)
         return collides
-
-class CollisionsDirections:
-    def __init__(self):
-        self.top = False
-        self.bottom = False
-        self.left = False
-        self.right = False
-
-        self.right_block = None
-        self.left_block = None
-        self.top_block = None
-        self.bottom_block = None
-
-    def reset(self):
-        self.top = False
-        self.bottom = False
-        self.left = False
-        self.right = False
-
-        self.right_block = None
-        self.left_block = None
-        self.top_block = None
-        self.bottom_block = None
-
-
-

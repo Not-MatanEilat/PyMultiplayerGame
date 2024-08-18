@@ -41,6 +41,7 @@ class Engine:
         self.screens.append(self.current_screen)
         self.current_screen.run()
         pygame.quit()
+
 class Camera:
     def __init__(self):
         self.game_scroll = CameraScroll()

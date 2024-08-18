@@ -14,7 +14,7 @@ class MenuScreen(Screen):
         self.init_UI()
 
     def init_UI(self):
-        button = Button(pygame.Rect(150, 150, 100, 50), Colors.RED, "Play", Colors.BLACK, self.engine.mouse)
+        button = Button(pygame.Rect(150, 150, 100, 50), Colors.RED, "Play", Colors.BLACK)
         button.on_click_call_backs.append(lambda: self.start_screen(ConnectingToGameScreen(self.engine)))
         self.add_view(button)
 

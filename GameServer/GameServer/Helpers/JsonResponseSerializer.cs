@@ -1,4 +1,5 @@
-﻿using GameServer.Responses;
+﻿using GameServer.GameRelated;
+using GameServer.Responses;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -27,11 +28,19 @@ namespace GameServer.Helpers
                 blocksArray.Add(blockObject);
             }
             json["blocks"] = blocksArray;
+            List<Player> players = response.GetPlayers();
+            JArray playersArray = new JArray();
+            foreach (Player player in players)
+            {
+                JObject playerObject = new JObject();
+                playerObject["name"] = player.GetName();
+                playerObject["position"] = JObject.FromObject(new { x = player.GetPosition().X, y = player.GetPosition().Y });
+                playersArray.Add(playerObject);
+            }
+            json["players"] = playersArray;
 
-            string jsonString = json.ToString();
-            Console.WriteLine(jsonString);
-            List<byte> buffer = BytesHelper.StringToBytes(jsonString);
-            return buffer;
+
+            return GetBufferFromJson(json);
         }
 
         public static List<byte> serializeResponse(MoveResponse response)
@@ -41,10 +50,8 @@ namespace GameServer.Helpers
             json["ok"] = response.IsOk();
             json["position"] = JObject.FromObject(new { x = response.GetPosition().X, y = response.GetPosition().Y });
 
-            string jsonString = json.ToString();
-            Console.WriteLine(jsonString);
-            List<byte> buffer = BytesHelper.StringToBytes(jsonString);
-            return buffer;
+            return GetBufferFromJson(json);
+
         }
 
         public static List<byte> serializeResponse(ConnectedToServerResponse response)
@@ -52,10 +59,26 @@ namespace GameServer.Helpers
             JObject json = new JObject();
             json["ok"] = response.IsOk();
 
-            string jsonString = json.ToString();
-            Console.WriteLine(jsonString);
-            List<byte> buffer = BytesHelper.StringToBytes(jsonString);
-            return buffer;
+            return GetBufferFromJson(json);
+
+        }
+
+        public static List<byte> serializeResponse(UpdatePlayersResponse response)
+        {
+            JObject json = new JObject();
+            json["ok"] = response.IsOk();
+            List<Player> players = response.GetPlayers();
+            JArray playersArray = new JArray();
+            foreach (Player player in players)
+            {
+                JObject playerObject = new JObject();
+                playerObject["name"] = player.GetName();
+                playerObject["position"] = JObject.FromObject(new { x = player.GetPosition().X, y = player.GetPosition().Y });
+                playersArray.Add(playerObject);
+            }
+            json["players"] = playersArray;
+
+            return GetBufferFromJson(json);
         }
 
         public static List<byte> serializeResponse(ErrorResponse response)
@@ -64,8 +87,13 @@ namespace GameServer.Helpers
             json["ok"] = response.IsOk();
             json["message"] = response.GetMessage();
 
+            return GetBufferFromJson(json);
+
+        }
+
+        public static List<byte> GetBufferFromJson(JObject json)
+        {
             string jsonString = json.ToString();
-            Console.WriteLine(jsonString);
             List<byte> buffer = BytesHelper.StringToBytes(jsonString);
             return buffer;
         }

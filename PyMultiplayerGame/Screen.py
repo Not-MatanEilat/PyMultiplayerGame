@@ -27,7 +27,6 @@ class Screen:
 
             self.draw_screen()
 
-
             self.check_for_screen_change()
             self.check_for_game_finish()
 
@@ -44,13 +43,13 @@ class Screen:
 
     def exit_game(self):
         pygame.quit()
-        sys.exit()
+        exit(0)
 
     def updates(self, events):
         self.engine.mouse.update(events)
         self.engine.keyboard.update()
         for view in self.views:
-            view.update()
+            view.update(self.engine.mouse, self.engine.keyboard)
         self.engine.timer_manager.update()
 
     def middleUpdates(self, events):
