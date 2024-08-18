@@ -35,7 +35,7 @@ namespace GameServer.RequestHandlers
             {
                 ErrorResponse errorResponse = new ErrorResponse(e.Message);
                 Console.WriteLine("Error: " + e.Message);
-                result.responseCode = requestInfo.requestCode;
+                result.responseCode = (int)PacketsCodes.Error;
                 result.response = JsonResponseSerializer.serializeResponse(errorResponse);
                 result.newHandler = this;
             }

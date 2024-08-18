@@ -32,6 +32,11 @@ class ConnectToGameResponse(Response):
     blocks: list[Block]
     players: list[Player]
 
+@dataclass
+class ErrorResponse(Response):
+    message: str
+
+
 
 
 @dataclass

@@ -17,13 +17,16 @@ class Communicator:
     PORT = 6984
 
     def __init__(self, engine):
-        self.sock = socket(AF_INET, SOCK_STREAM)
+        self.sock = None
 
         self.engine = engine
+        self.listening = False
 
     def connect_to_server(self):
         # setup thread for connecting to server and then listening to packets
         thread = Thread(target=self.connect_socket_to_server)
+        self.sock = socket(AF_INET, SOCK_STREAM)
+        self.listening = True
         thread.start()
 
     def connect_socket_to_server(self):
@@ -48,11 +51,20 @@ class Communicator:
                     response_json = json.loads(message)
 
                     self.engine.current_screen.on_packet_received(code, response_json)
+
+                    if not self.listening:
+                        break
+
             except Exception as e:
                 print("Error receiving message: " + str(e))
             except ConnectionResetError:
                 print("Connection to server lost")
                 break
+
+    def close(self):
+        self.listening = False
+        self.sock.close()
+
 
     def parse_message(self, message):
         code = struct.unpack('!B', message[0:1])[0]

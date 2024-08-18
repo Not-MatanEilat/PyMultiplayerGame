@@ -9,6 +9,7 @@ namespace GameServer.Responses
     abstract class IResponse
     {
         private bool ok;
+        private bool error;
 
         public IResponse( bool ok = true)
         {

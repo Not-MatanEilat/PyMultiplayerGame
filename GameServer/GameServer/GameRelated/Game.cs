@@ -20,7 +20,7 @@ namespace GameServer.GameRelated
         private List<Player> players;
 
         private System.Timers.Timer updatePlayersTimer;
-        private const int updatePlayersInterval = 100;
+        private const int updatePlayersInterval = 50;
 
         private const int targetUpdatesPerSecond = 60;
         private const int frameTime = 1000 / targetUpdatesPerSecond;
@@ -32,13 +32,14 @@ namespace GameServer.GameRelated
             blocks = new List<RectangleF>();
             players = new List<Player>();
 
-            blocks.Add(new RectangleF(0, 400, 50, 50));
-            blocks.Add(new RectangleF(50, 400, 50, 50));
-            blocks.Add(new RectangleF(100, 400, 50, 50));
-            blocks.Add(new RectangleF(150, 400, 50, 50));
-            blocks.Add(new RectangleF(200, 400, 50, 50));
-            blocks.Add(new RectangleF(250, 400, 50, 50));
-            blocks.Add(new RectangleF(300, 400, 50, 50));
+            blocks.Add(new RectangleF(-150, 400, 2500, 50));
+
+            blocks.Add(new RectangleF(300, 300, 100, 100)); // First jump
+            blocks.Add(new RectangleF(600, 200, 100, 100)); // Second jump
+            blocks.Add(new RectangleF(900, 100, 100, 100)); // Third jump
+            blocks.Add(new RectangleF(1200, 0, 100, 100));  // Fourth jump
+
+            blocks.Add(new RectangleF(1500, -100, 400, 100)); // Final big platform
 
             this.handlerFactory = handlerFactory;
 
@@ -114,6 +115,10 @@ namespace GameServer.GameRelated
 
         public void AddPlayer(Player player)
         {
+            if (player.GetName() == "")
+            {
+                throw new GameException("Player name cannot be empty");
+            }
             if (PlayerNameExists(player))
             {
                 throw new GameException("Player with name " + player.GetName() + " already exists");

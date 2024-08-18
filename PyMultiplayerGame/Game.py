@@ -55,7 +55,6 @@ class Game:
 
     def on_update_players_response(self, data):
         response: UpdatePlayersResponse = get_response(data, UpdatePlayersResponse)
-        print(response.players)
 
         for player in response.players:
             if player.name in self.players:
@@ -63,6 +62,10 @@ class Game:
                 self.players[player.name].rect.y = player.position.y
             elif player.name != self.local_player.name:
                 self.players[player.name] = Player(player.position.x, player.position.y, Colors.RED, player.name)
+
+        for player_name in list(self.players.keys()):
+            if player_name not in [player.name for player in response.players]:
+                del self.players[player_name]
 
     def update_player_position(self):
         self.engine.communicator.update_player_position(self.next_request_id, self.local_player.rect.x, self.local_player.rect.y)
