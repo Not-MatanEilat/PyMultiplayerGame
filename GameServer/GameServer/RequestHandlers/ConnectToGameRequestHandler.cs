@@ -53,6 +53,8 @@ namespace GameServer.RequestHandlers
 
             RequestResult result = new RequestResult();
 
+            List<Player> players = game.GetPlayers();
+
             ConnectToGameResponse response = new ConnectToGameResponse(game.GetBlocks(), game.GetPlayers());
             result.response = JsonResponseSerializer.serializeResponse(response);
 

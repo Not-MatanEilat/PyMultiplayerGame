@@ -5,5 +5,5 @@ class Drawable:
         pass
 
     @abc.abstractmethod
-    def draw(self, screen):
+    def draw(self, screen, camera):
         pass

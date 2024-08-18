@@ -32,8 +32,6 @@ namespace GameServer.Helpers
             bufferLengthBytes.Reverse();
             int bufferLength = BitConverter.ToInt32(bufferLengthBytes.ToArray(), 0);
 
-            Console.WriteLine("Size: " + bufferLength);
-
             if (bufferLength > Communicator.maxRequestSize)
             {
                 throw new Exception("Request too large");
@@ -66,7 +64,6 @@ namespace GameServer.Helpers
 
         public static void SendDataToSocket(Socket socket, List<byte> data)
         {
-            Console.WriteLine("Sending data: " + BytesToString(data));
             byte[] dataBytes = data.ToArray();
             socket.Send(dataBytes);
         }

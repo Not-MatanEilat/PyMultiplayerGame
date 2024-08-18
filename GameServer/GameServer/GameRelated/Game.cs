@@ -1,4 +1,5 @@
 ﻿using GameServer.Exceptions;
+using GameServer.RequestHandlers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,6 +8,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Sockets;
+using GameServer.Responses;
+using GameServer.Helpers;
 
 namespace GameServer.GameRelated
 {
@@ -14,6 +18,9 @@ namespace GameServer.GameRelated
     {
         private List<RectangleF> blocks;
         private List<Player> players;
+
+        private System.Timers.Timer updatePlayersTimer;
+        private const int updatePlayersInterval = 100;
 
         private const int targetUpdatesPerSecond = 60;
         private const int frameTime = 1000 / targetUpdatesPerSecond;
@@ -34,6 +41,30 @@ namespace GameServer.GameRelated
             blocks.Add(new RectangleF(300, 400, 50, 50));
 
             this.handlerFactory = handlerFactory;
+
+            SetupPlayersUpdateTimer();
+        }
+
+        private void SetupPlayersUpdateTimer()
+        {
+            updatePlayersTimer = new System.Timers.Timer(updatePlayersInterval);
+            updatePlayersTimer.Elapsed += UpdatePlayers;
+            updatePlayersTimer.Start();
+        }
+
+        private void UpdatePlayers(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            List<Socket> playerClients = handlerFactory.GetCommunicator().GetClients<GameRequestHandler>();
+
+
+            UpdatePlayersResponse response = new UpdatePlayersResponse(players);
+
+            RequestResult result = new RequestResult();
+            result.responseCode = (int)PacketsCodes.UpdatePlayers;
+            result.response = JsonResponseSerializer.serializeResponse(response);
+
+            Communicator communicator = handlerFactory.GetCommunicator();
+            communicator.SendResultToClients(playerClients, result);
         }
 
         public void mainLoop()
@@ -44,11 +75,7 @@ namespace GameServer.GameRelated
             {
                 stopwatch.Restart();
 
-
-
-
-
-
+                // Main game logic goes here
 
 
 
@@ -68,6 +95,10 @@ namespace GameServer.GameRelated
             return blocks;
         }
 
+        public List<Player> GetPlayers()
+        {
+            return players;
+        }
         public Player GetPlayer(string name)
         {
             foreach (Player player in players)
@@ -89,12 +120,10 @@ namespace GameServer.GameRelated
             }
 
             players.Add(player);
-
         }
 
         public bool PlayerNameExists(Player player)
         {
-            
             foreach (Player p in players)
             {
                 if (p.GetName() == player.GetName())

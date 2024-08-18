@@ -9,18 +9,18 @@ class Player(Sprite):
     WIDTH = 50
     HEIGHT = 50
 
-    def __init__(self, camera, x, y, name):
-        super().__init__(camera, x, y, self.WIDTH, self.HEIGHT)
+    def __init__(self, x, y, color, name):
+        super().__init__(x, y, self.WIDTH, self.HEIGHT, color)
 
         self.name = name
-        self.name_text = Text(pygame.Rect(0, 0, 100, 50), self.name, 36, Colors.BLACK)
+        self.name_text = Text(pygame.Rect(0, 0, 100, 50), self.name, 36, Colors.BLACK, False)
 
     def update(self, keyboard, blocks):
         self.update_name_text_position()
 
-    def draw(self, screen):
-        super().draw(screen)
-        self.name_text.draw(screen)
+    def draw(self, screen, camera):
+        super().draw(screen, camera)
+        self.name_text.draw(screen, camera)
 
     def update_name_text_position(self):
         self.name_text.rect.x = self.rect.x + self.rect.width / 2 - self.name_text.rect.width / 2
@@ -52,8 +52,8 @@ class CollisionsDirections:
 
 
 class PlayablePlayer(Player):
-    def __init__(self, camera, x, y, name):
-        super().__init__(camera, x, y, name)
+    def __init__(self, x, y, color, name):
+        super().__init__(x, y, color, name)
 
         self.speed = 5
 
@@ -69,8 +69,6 @@ class PlayablePlayer(Player):
         self.lock_all_controls = False
 
     def update(self, keyboard, blocks):
-        super().update(keyboard, blocks)
-
         self.reset_collisions()
 
         self.move_x()
@@ -82,6 +80,8 @@ class PlayablePlayer(Player):
 
         self.handle_keyboard_presses(keyboard)
         self.handle_gravity()
+
+        super().update(keyboard, blocks)
 
     def reset_collisions(self):
         self.collision_directions.reset()

@@ -1,3 +1,4 @@
+import Colors
 from Player import PlayablePlayer, Player
 from Block import Block
 from Timer import CountdownTimer
@@ -8,12 +9,13 @@ from UI import Text
 class Game:
     def __init__(self, engine, blocks, players, local_player_name):
         self.blocks = blocks
-        self.local_player = self.player = PlayablePlayer(engine.camera, 50, 50, local_player_name)
+        self.local_player = self.player = PlayablePlayer(50, 50, Colors.BLUE, local_player_name)
         self.players: dict = players
 
         # remove the local player from the players list
         del self.players[local_player_name]
 
+        engine.camera.follow(self.local_player)
         self.engine = engine
 
         self.update_player_position_timer = CountdownTimer(0.1, True)
@@ -24,19 +26,19 @@ class Game:
         self.requests = {}
         self.next_request_id = 1
 
-    def update(self):
-        self.local_player.update(self.engine.keyboard, self.blocks)
+    def update(self, keyboard):
+        self.local_player.update(keyboard, self.blocks)
 
         for player in self.players.values():
-            player.update(self.engine.keyboard, self.blocks)
+            player.update(keyboard, self.blocks)
 
-    def draw(self):
-        self.local_player.draw(self.engine.screen)
+    def draw(self, screen, camera):
+        self.local_player.draw(screen, camera)
         for block in self.blocks:
-            block.draw(self.engine.screen)
+            block.draw(screen, camera)
 
         for player in self.players.values():
-            player.draw(self.engine.screen)
+            player.draw(screen, camera)
 
 
     def on_movement_response(self, data):
@@ -60,7 +62,7 @@ class Game:
                 self.players[player.name].rect.x = player.position.x
                 self.players[player.name].rect.y = player.position.y
             elif player.name != self.local_player.name:
-                self.players[player.name] = Player(self.engine.camera, player.position.x, player.position.y, player.name)
+                self.players[player.name] = Player(player.position.x, player.position.y, Colors.RED, player.name)
 
     def update_player_position(self):
         self.engine.communicator.update_player_position(self.next_request_id, self.local_player.rect.x, self.local_player.rect.y)

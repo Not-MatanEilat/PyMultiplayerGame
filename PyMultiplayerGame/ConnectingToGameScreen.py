@@ -77,11 +77,11 @@ class ConnectingToGameScreen(Screen):
 
         blocks = []
         for block in response.blocks:
-            blocks.append(Block(self.engine.camera, block.x, block.y, block.width, block.height))
+            blocks.append(Block(block.x, block.y, block.width, block.height))
 
         players = {}
         for player in response.players:
-            players[player.name] = Player(self.engine.camera, player.position.x, player.position.y, player.name)
+            players[player.name] = Player(player.position.x, player.position.y, Colors.RED, player.name)
 
         game_screen = GameScreen(self.engine, blocks, players, self.name_edit_text.current_text)
         self.start_screen(game_screen)

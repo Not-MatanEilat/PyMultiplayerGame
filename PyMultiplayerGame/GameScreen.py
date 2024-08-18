@@ -19,9 +19,6 @@ class GameScreen(Screen):
 
         self.init_UI()
 
-        self.text_view = Text(pygame.Rect(0, 50, 100, 50), "Time: ", 36, Colors.BLACK)
-        self.add_view(self.text_view)
-
         self.response_and_events_functions: Dict[PacketCodes, Callable[[Game], None]] = {
             PacketCodes.MOVE: self.game.on_movement_response,
             PacketCodes.UPDATE_PLAYERS: self.game.on_update_players_response
@@ -39,11 +36,11 @@ class GameScreen(Screen):
 
     def updates(self, events):
         super().updates(events)
-        self.game.update()
+        self.game.update(self.engine.keyboard)
 
     def draw(self):
         super().draw()
-        self.game.draw()
+        self.game.draw(self.engine.screen, self.engine.camera)
 
     def dispose(self):
         self.game.update_player_position_timer.delete()

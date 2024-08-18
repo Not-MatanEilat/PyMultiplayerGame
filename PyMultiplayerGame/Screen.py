@@ -68,7 +68,7 @@ class Screen:
     def draw(self):
         self.engine.screen.fill(self.engine.BACKGROUND_COLOR)
         for view in self.views:
-            view.draw(self.engine.screen)
+            view.draw(self.engine.screen, self.engine.camera)
     def add_view(self, view):
         self.views.append(view)
 

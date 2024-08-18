@@ -7,14 +7,25 @@ from Drawable import Drawable
 
 
 class View(Drawable):
-    def __init__(self, rect):
+    def __init__(self, rect, static):
         super().__init__()
+        self.static = static
         self.rect = rect
         self.visible = True
         self.on_click_call_backs = []
 
+    def draw(self, screen, camera):
+        if self.static:
+            self.static_draw(screen)
+        else:
+            self.camera_draw(screen, camera)
+
     @abc.abstractmethod
-    def draw(self, screen):
+    def static_draw(self, screen):
+        pass
+
+    @abc.abstractmethod
+    def camera_draw(self, screen, camera):
         pass
 
     def handle_call_backs(self, mouse):
@@ -32,31 +43,40 @@ class View(Drawable):
 
 
 class Image(View):
-    def __init__(self, rect, image):
-        super().__init__(rect)
+    def __init__(self, rect, image, static=True):
+        super().__init__(rect, static)
         self.image = image
 
-    def draw(self, screen):
+    def static_draw(self, screen):
         screen.blit(self.image, self.rect)
 
+    def camera_draw(self, screen, camera):
+        screen.blit(self.image, (self.rect.x - camera.game_scroll.x, self.rect.y - camera.game_scroll.y))
 
 class Text(View):
-    def __init__(self, rect, text, font_size, color):
-        super().__init__(rect)
+    def __init__(self, rect, text, font_size, color, static=True):
+        super().__init__(rect, static)
         self.text = text
         self.font_size = font_size
         self.color = color
 
-    def draw(self, screen):
+    def static_draw(self, screen):
         current_font = font.Font(None, self.font_size)
         text = current_font.render(self.text, True, self.color)
+
         screen.blit(text, (self.rect.x + self.rect.width / 2 - text.get_width() / 2,
                            self.rect.y + self.rect.height / 2 - text.get_height() / 2))
 
+    def camera_draw(self, screen, camera):
+        current_font = font.Font(None, self.font_size)
+        text = current_font.render(self.text, True, self.color)
+
+        screen.blit(text, (self.rect.x - camera.game_scroll.x + self.rect.width / 2 - text.get_width() / 2,
+                           self.rect.y - camera.game_scroll.y + self.rect.height / 2 - text.get_height() / 2))
 
 class EditText(View):
-    def __init__(self, rect, text, font_size, color):
-        super().__init__(rect)
+    def __init__(self, rect, text, font_size, color, static=True):
+        super().__init__(rect, static)
         self.text = text
         self.font_size = font_size
         self.color = color
@@ -69,7 +89,7 @@ class EditText(View):
         self.on_start_editing_call_back = None
         self.on_end_editing_call_back = None
 
-    def draw(self, screen):
+    def static_draw(self, screen):
         draw.rect(screen, Colors.WHITE, self.rect)
         draw.rect(screen, Colors.BLACK, self.rect, 3)
 
@@ -77,6 +97,15 @@ class EditText(View):
         text = current_font.render(self.current_text, True, self.current_color)
         screen.blit(text, (self.rect.x + self.rect.width / 2 - text.get_width() / 2,
                            self.rect.y + self.rect.height / 2 - text.get_height() / 2))
+
+    def camera_draw(self, screen, camera):
+        draw.rect(screen, Colors.WHITE, pygame.Rect(self.rect.x - camera.game_scroll.x, self.rect.y - camera.game_scroll.y, self.rect.width, self.rect.height))
+        draw.rect(screen, Colors.BLACK, pygame.Rect(self.rect.x - camera.game_scroll.x, self.rect.y - camera.game_scroll.y, self.rect.width, self.rect.height), 3)
+
+        current_font = font.Font(None, self.font_size)
+        text = current_font.render(self.current_text, True, self.current_color)
+        screen.blit(text, (self.rect.x - camera.game_scroll.x + self.rect.width / 2 - text.get_width() / 2,
+                           self.rect.y - camera.game_scroll.y + self.rect.height / 2 - text.get_height() / 2))
 
     def update(self, mouse, keyboard):
         super(EditText, self).update(mouse, keyboard)
@@ -110,8 +139,8 @@ class EditText(View):
 
 
 class Button(View):
-    def __init__(self, rect, button_color, text, text_color):
-        super().__init__(rect)
+    def __init__(self, rect, button_color, text, text_color, static=True):
+        super().__init__(rect, static)
         self.text = Text(rect, text, 36, text_color)
         self.current_button_color = button_color
         self.button_color = button_color
@@ -119,11 +148,17 @@ class Button(View):
 
         self.dont_change_color_on_button_hover = False
 
-    def draw(self, screen):
+    def static_draw(self, screen):
         draw.rect(screen, self.current_button_color, self.rect)
         draw.rect(screen, Colors.BLACK, self.rect, 3)
 
-        self.text.draw(screen)
+        self.text.static_draw(screen)
+
+    def camera_draw(self, screen, camera):
+        draw.rect(screen, self.current_button_color, pygame.Rect(self.rect.x - camera.game_scroll.x, self.rect.y - camera.game_scroll.y, self.rect.width, self.rect.height))
+        draw.rect(screen, Colors.BLACK, pygame.Rect(self.rect.x - camera.game_scroll.x, self.rect.y - camera.game_scroll.y, self.rect.width, self.rect.height), 3)
+
+        self.text.camera_draw(screen, camera)
 
     def update(self, mouse, keyboard):
         super(Button, self).update(mouse, keyboard)
